@@ -7,11 +7,7 @@ type User = {
   correo: string;
 };
 
-type Action={
-    
-}
-
-
+type Action = {};
 
 const useStore = create((set) => ({
   bears: 0,

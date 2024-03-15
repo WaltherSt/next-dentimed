@@ -1,14 +1,19 @@
 import { deletePatient, getPatient } from "@/app/lib/actions";
-import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  EyeIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 export function CreatePatient() {
   return (
     <Link
       href="/dashboard/patients/create"
-      className="flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+      className="flex h-10 items-center rounded-lg bg-sky-400 px-4 text-sm font-medium text-white transition-colors hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
     >
-      <span className="hidden md:block">Create Patient</span>{" "}
+      <span className="hidden md:block">Nuevo Paciente</span>{" "}
       <PlusIcon className="h-5 md:ml-4" />
     </Link>
   );
@@ -48,4 +53,3 @@ export function ViewPatient({ id }: { id: string }) {
     </form>
   );
 }
-

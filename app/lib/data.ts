@@ -7,11 +7,12 @@ import { Patients } from "./definitions";
 
 export async function fetchPatients() {
   noStore();
-  const user: any = await auth();
-  const item: any = await getUser(user?.user?.email);
-  const userId = item[0].id;
 
   try {
+    const user: any = await auth();
+    const item: any = await getUser(user?.user?.email);
+
+    const userId = item.rows[0]?.id;
     const data =
       await sql<Patients>`SELECT * FROM patient WHERE patient.User_id=${userId}`;
     return data.rows;
@@ -22,10 +23,11 @@ export async function fetchPatients() {
 }
 export async function fetchCardData() {
   noStore();
-  const user: any = await auth();
-  const item: any = await getUser(user?.user?.email);
-  const userId = item[0].id;
+
   try {
+    const user: any = await auth();
+    const item: any = await getUser(user?.user?.email);
+    const userId = item.rows[0]?.id;
     const patientsCountPromise = sql`SELECT COUNT(*) FROM patient WHERE patient.User_id=${userId}`;
     const data = await Promise.all([patientsCountPromise]);
     const numberOfpatients = Number(data[0].rows[0].count ?? "0");
@@ -47,14 +49,15 @@ export async function fetchFilteredPatients(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   const user: any = await auth();
   const item: any = await getUser(user?.user?.email);
-  const userId = item[0].id;
+  const userId = item.rows[0]?.id;
 
   try {
     const patients = await sql<Patients>`
     SELECT *
-    FROM patient
+    FROM patient p
     WHERE
-      patient.nombres ILIKE ${`%${query}%`} AND patient.User_id=${userId}
+      p.nombres ILIKE ${`%${query}%`}
+      AND p.user_id=${userId}
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 
@@ -67,14 +70,16 @@ export async function fetchFilteredPatients(
 
 export async function fetchPatientsPages(query: string) {
   noStore();
-  const user: any = await auth();
-  const item: any = await getUser(user?.user?.email);
-  const userId = item[0].id;
+
   try {
+    const user: any = await auth();
+    const item: any = await getUser(user?.user?.email);
+    const userId = item.rows[0]?.id;
     const count = await sql`SELECT COUNT(*)
     FROM patient
     WHERE
-      patient.nombres ILIKE ${`%${query}%`} AND patient.User_id=${userId}
+      patient.nombres ILIKE ${`%${query}%`}
+      AND patient.User_id=${userId}
   `;
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
     return totalPages;

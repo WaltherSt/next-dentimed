@@ -74,7 +74,7 @@ export async function createPatient(formData: FormData) {
   try {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
-    const userId = item[0].id;
+    const userId = item.rows[0]?.id;
 
     const {
       n_documento,

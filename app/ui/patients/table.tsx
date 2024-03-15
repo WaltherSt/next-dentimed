@@ -10,6 +10,8 @@ export default async function InvoicesTable({
 }) {
   const patients = await fetchFilteredPatients(query, currentPage);
 
+  
+
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">

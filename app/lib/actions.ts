@@ -72,9 +72,9 @@ export async function getUser(email: string) {
 const CreatePatient = FormSchema.omit({ id: true });
 export async function createPatient(formData: FormData) {
   try {
-    const { user } = await auth();
-    const { rows } = await getUser(user.email);
-    const userId = rows[0].id;
+    const user: any = await auth();
+    const item: any = await getUser(user?.user?.email);
+    const userId = item[0].id;
 
     const {
       n_documento,

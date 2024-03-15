@@ -7,9 +7,9 @@ import { Patients } from "./definitions";
 
 export async function fetchPatients() {
   noStore();
-  const { user } = await auth();
-  const { rows } = await getUser(user.email);
-  const userId = rows[0].id;
+  const user: any = await auth();
+  const item: any = await getUser(user?.user?.email);
+  const userId = item[0].id;
 
   try {
     const data =
@@ -22,9 +22,9 @@ export async function fetchPatients() {
 }
 export async function fetchCardData() {
   noStore();
-  const { user } = await auth();
-  const { rows } = await getUser(user.email);
-  const userId = rows[0].id;
+  const user: any = await auth();
+  const item: any = await getUser(user?.user?.email);
+  const userId = item[0].id;
   try {
     const patientsCountPromise = sql`SELECT COUNT(*) FROM patient WHERE patient.User_id=${userId}`;
     const data = await Promise.all([patientsCountPromise]);
@@ -45,9 +45,9 @@ export async function fetchFilteredPatients(
 ) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-  const { user } = await auth();
-  const { rows } = await getUser(user.email);
-  const userId = rows[0].id;
+  const user: any = await auth();
+  const item: any = await getUser(user?.user?.email);
+  const userId = item[0].id;
 
   try {
     const patients = await sql<Patients>`
@@ -67,10 +67,9 @@ export async function fetchFilteredPatients(
 
 export async function fetchPatientsPages(query: string) {
   noStore();
-  const { user } = await auth();
-  const { rows } = await getUser(user.email);
-  const userId = rows[0].id;
-
+  const user: any = await auth();
+  const item: any = await getUser(user?.user?.email);
+  const userId = item[0].id;
   try {
     const count = await sql`SELECT COUNT(*)
     FROM patient
@@ -84,5 +83,3 @@ export async function fetchPatientsPages(query: string) {
     throw new Error("Failed to fetch total number of patients.");
   }
 }
-
-

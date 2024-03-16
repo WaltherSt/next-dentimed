@@ -2,7 +2,7 @@
 import { auth } from "@/auth";
 import { sql } from "@vercel/postgres";
 import { unstable_noStore as noStore } from "next/cache";
-import { getUser } from "./actions";
+import { getCountPatientsByUser, getUser } from "./actions";
 import { Patients } from "./definitions";
 
 export async function fetchPatients() {
@@ -12,7 +12,7 @@ export async function fetchPatients() {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
 
-    const userId = item.rows[0]?.id;
+    const userId = item.id;
     const data =
       await sql<Patients>`SELECT * FROM patient WHERE patient.User_id=${userId}`;
     return data.rows;
@@ -27,10 +27,11 @@ export async function fetchCardData() {
   try {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
-    const userId = item.rows[0]?.id;
-    const patientsCountPromise = sql`SELECT COUNT(*) FROM patient WHERE patient.User_id=${userId}`;
-    const data = await Promise.all([patientsCountPromise]);
-    const numberOfpatients = Number(data[0].rows[0].count ?? "0");
+
+    const userId = item.id;
+    // const patientsCountPromise = sql`SELECT COUNT(*) FROM patient WHERE patient.User_id=${userId}`;
+    const numberOfpatients = await getCountPatientsByUser(userId);
+
     return {
       numberOfpatients,
     };
@@ -49,7 +50,7 @@ export async function fetchFilteredPatients(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   const user: any = await auth();
   const item: any = await getUser(user?.user?.email);
-  const userId = item.rows[0]?.id;
+  const userId = item.id;
 
   try {
     const patients = await sql<Patients>`
@@ -74,7 +75,7 @@ export async function fetchPatientsPages(query: string) {
   try {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
-    const userId = item.rows[0]?.id;
+    const userId = item.id;
     const count = await sql`SELECT COUNT(*)
     FROM patient
     WHERE

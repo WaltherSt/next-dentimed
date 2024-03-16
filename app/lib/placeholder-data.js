@@ -22,7 +22,6 @@ const patients = [
     telefono: 123456789,
     correo: "juan@example.com",
     user_id: "49ed58ae-9055-4254-9498-d469d75605d0",
-
   },
   {
     n_documento: 987654321,
@@ -34,7 +33,6 @@ const patients = [
     telefono: 987654321,
     correo: "maria@example.com",
     user_id: "49ed58ae-9055-4254-9498-d469d75605d0",
-
   },
   {
     n_documento: 555555555,
@@ -46,7 +44,6 @@ const patients = [
     telefono: 555555555,
     correo: "carlos@example.com",
     user_id: "49ed58ae-9055-4254-9498-d469d75605d0",
-
   },
   {
     n_documento: 111111111,
@@ -58,7 +55,6 @@ const patients = [
     telefono: 111111111,
     correo: "luisa@example.com",
     user_id: "c58e6795-d31b-4dd4-98d1-0ac502d8eb58",
-
   },
   {
     n_documento: 888888888,
@@ -70,7 +66,6 @@ const patients = [
     telefono: 888888888,
     correo: "pedro@example.com",
     user_id: "c58e6795-d31b-4dd4-98d1-0ac502d8eb58",
-
   },
   {
     n_documento: 999999999,
@@ -82,10 +77,10 @@ const patients = [
     telefono: 999999999,
     correo: "ana@example.com",
     user_id: "c58e6795-d31b-4dd4-98d1-0ac502d8eb58",
-
   },
 ];
 
 module.exports = {
+  users,
   patients,
 };

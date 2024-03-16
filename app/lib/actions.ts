@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Patients } from "./definitions";
 
+
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData
@@ -39,6 +40,10 @@ export async function deletePatient(id: string) {
 }
 
 export async function getPatient(id: string) {
+
+  
+
+
   try {
     const result = await sql<Patients>`SELECT * FROM patient WHERE id = ${id}`;
     return result.rows[0];

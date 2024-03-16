@@ -72,6 +72,8 @@ export async function getUser(email: string) {
 }
 
 const CreatePatient = FormSchema.omit({ id: true });
+// implementar orm
+
 export async function createPatient(formData: FormData) {
   try {
     const user: any = await auth();
@@ -100,6 +102,7 @@ export async function createPatient(formData: FormData) {
 }
 
 const updatePatient = FormSchema.omit({});
+// implementar orm
 
 export async function updatePatientId(idPatient: string, formData: FormData) {
   try {

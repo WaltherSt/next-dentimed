@@ -1,6 +1,10 @@
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 const { db } = require("@vercel/postgres");
-const {patients } = require("../app/lib/placeholder-data");
+// const {patients } = require("../app/lib/placeholder-data");
+
+const {PrismaClient} = require("@prisma/client")
+const prisma = new PrismaClient()
+
 
 // async function seedUsers(client) {
 //   try {
@@ -36,8 +40,8 @@ const {patients } = require("../app/lib/placeholder-data");
 //   }
 // }
 
-async function seedPatients(client) {
-  try {
+// async function seedPatients(client) {
+//   try {
     // const createTable = await client.sql`
     //   CREATE TABLE IF NOT EXISTS patient (
     //     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -53,144 +57,158 @@ async function seedPatients(client) {
     //   );
     // `;
 
-    const insertedPatients = await Promise.all(
-      patients.map(async (pat) => {
-        return client.sql`
-          INSERT INTO patient (n_documento, tipo_documento, nombres, apellidos, genero, fecha_nacimiento, telefono, correo, user_id)
-          VALUES (${pat.n_documento}, ${pat.tipo_documento}, ${pat.nombres}, ${pat.apellidos}, ${pat.genero}, ${pat.fecha_nacimiento}, ${pat.telefono}, ${pat.correo}, ${pat.user_id})
-          ON CONFLICT (id) DO NOTHING;
-        `;
-      })
-    );
+//     const insertedPatients = await Promise.all(
+//       patients.map(async (pat) => {
+//         return client.sql`
+//           INSERT INTO patient (n_documento, tipo_documento, nombres, apellidos, genero, fecha_nacimiento, telefono, correo, user_id)
+//           VALUES (${pat.n_documento}, ${pat.tipo_documento}, ${pat.nombres}, ${pat.apellidos}, ${pat.genero}, ${pat.fecha_nacimiento}, ${pat.telefono}, ${pat.correo}, ${pat.user_id})
+//           ON CONFLICT (id) DO NOTHING;
+//         `;
+//       })
+//     );
 
-    console.log(`Seeded ${insertedPatients.length} patients`);
+//     console.log(`Seeded ${insertedPatients.length} patients`);
 
-    return {
-      // createTable,
-      patients: insertedPatients,
-    };
-  } catch (error) {
-    console.error("Error seeding patients:", error);
-    throw error;
-  }
-}
+//     return {
+//       // createTable,
+//       patients: insertedPatients,
+//     };
+//   } catch (error) {
+//     console.error("Error seeding patients:", error);
+//     throw error;
+//   }
+// }
 
-async function seedClinicalH(client) {
-  try {
-    const createTable = await client.sql`
-      CREATE TABLE IF NOT EXISTS clinical_h (
-        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        diagnosis TEXT,
-        patient_id UUID REFERENCES patient(id) ON DELETE CASCADE
-      );
-    `;
-
-    // const insertedClinicalH = await Promise.all(
-    //   clinicalHRecords.map(async (record) => {
-    //     return client.sql`
-    //       INSERT INTO clinical_h (diagnosis, patient_id)
-    //       VALUES (${record.diagnosis}, ${record.patient_id})
-    //       ON CONFLICT (id) DO NOTHING;
-    //     `;
-    //   })
-    // );
-
-    // console.log(`Seeded ${insertedClinicalH.length} clinicalH records`);
-
-    return {
-      createTable,
-      // clinicalHRecords: insertedClinicalH,
-    };
-  } catch (error) {
-    console.error("Error seeding clinicalH records:", error);
-    throw error;
-  }
-}
-
-// async function seedAppointments(client) {
+// async function seedClinicalH(client) {
 //   try {
 //     const createTable = await client.sql`
-//       CREATE TABLE IF NOT EXISTS appointment (
+//       CREATE TABLE IF NOT EXISTS clinical_h (
 //         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//         lugar VARCHAR(255),
-//         hora TIME,
-//         fecha DATE,
+//         diagnosis TEXT,
 //         patient_id UUID REFERENCES patient(id) ON DELETE CASCADE
 //       );
 //     `;
 
-//     const insertedAppointments = await Promise.all(
-//       appointments.map(async (appointment) => {
-//         return client.sql`
-//           INSERT INTO appointment (lugar, hora, fecha, patient_id)
-//           VALUES (${appointment.lugar}, ${appointment.hora}, ${appointment.fecha}, ${appointment.patient_id})
-//           ON CONFLICT (id) DO NOTHING;
-//         `;
-//       })
-//     );
+//     // const insertedClinicalH = await Promise.all(
+//     //   clinicalHRecords.map(async (record) => {
+//     //     return client.sql`
+//     //       INSERT INTO clinical_h (diagnosis, patient_id)
+//     //       VALUES (${record.diagnosis}, ${record.patient_id})
+//     //       ON CONFLICT (id) DO NOTHING;
+//     //     `;
+//     //   })
+//     // );
 
-//     console.log(`Seeded ${insertedAppointments.length} appointments`);
+//     // console.log(`Seeded ${insertedClinicalH.length} clinicalH records`);
 
 //     return {
 //       createTable,
-//       appointments: insertedAppointments,
+//       // clinicalHRecords: insertedClinicalH,
 //     };
 //   } catch (error) {
-//     console.error("Error seeding appointments:", error);
+//     console.error("Error seeding clinicalH records:", error);
 //     throw error;
 //   }
 // }
 
-// async function seedOdontograms(client) {
-//   try {
-//     const createTable = await client.sql`
-//       CREATE TABLE IF NOT EXISTS odontogram (
-//         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//         gram TEXT,
-//         clinicalH_id UUID REFERENCES clinical_h(id) ON DELETE CASCADE
-//       );
-//     `;
+// // async function seedAppointments(client) {
+// //   try {
+// //     const createTable = await client.sql`
+// //       CREATE TABLE IF NOT EXISTS appointment (
+// //         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+// //         lugar VARCHAR(255),
+// //         hora TIME,
+// //         fecha DATE,
+// //         patient_id UUID REFERENCES patient(id) ON DELETE CASCADE
+// //       );
+// //     `;
 
-//     const insertedOdontograms = await Promise.all(
-//       odontograms.map(async (odontogram) => {
-//         return client.sql`
-//           INSERT INTO odontogram (gram, clinicalH_id)
-//           VALUES (${odontogram.gram}, ${odontogram.clinicalH_id})
-//           ON CONFLICT (id) DO NOTHING;
-//         `;
-//       })
-//     );
+// //     const insertedAppointments = await Promise.all(
+// //       appointments.map(async (appointment) => {
+// //         return client.sql`
+// //           INSERT INTO appointment (lugar, hora, fecha, patient_id)
+// //           VALUES (${appointment.lugar}, ${appointment.hora}, ${appointment.fecha}, ${appointment.patient_id})
+// //           ON CONFLICT (id) DO NOTHING;
+// //         `;
+// //       })
+// //     );
 
-//     console.log(`Seeded ${insertedOdontograms.length} odontograms`);
+// //     console.log(`Seeded ${insertedAppointments.length} appointments`);
 
-//     return {
-//       createTable,
-//       odontograms: insertedOdontograms,
-//     };
-//   } catch (error) {
-//     console.error("Error seeding odontograms:", error);
-//     throw error;
-//   }
-// }
+// //     return {
+// //       createTable,
+// //       appointments: insertedAppointments,
+// //     };
+// //   } catch (error) {
+// //     console.error("Error seeding appointments:", error);
+// //     throw error;
+// //   }
+// // }
+
+// // async function seedOdontograms(client) {
+// //   try {
+// //     const createTable = await client.sql`
+// //       CREATE TABLE IF NOT EXISTS odontogram (
+// //         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+// //         gram TEXT,
+// //         clinicalH_id UUID REFERENCES clinical_h(id) ON DELETE CASCADE
+// //       );
+// //     `;
+
+// //     const insertedOdontograms = await Promise.all(
+// //       odontograms.map(async (odontogram) => {
+// //         return client.sql`
+// //           INSERT INTO odontogram (gram, clinicalH_id)
+// //           VALUES (${odontogram.gram}, ${odontogram.clinicalH_id})
+// //           ON CONFLICT (id) DO NOTHING;
+// //         `;
+// //       })
+// //     );
+
+// //     console.log(`Seeded ${insertedOdontograms.length} odontograms`);
+
+// //     return {
+// //       createTable,
+// //       odontograms: insertedOdontograms,
+// //     };
+// //   } catch (error) {
+// //     console.error("Error seeding odontograms:", error);
+// //     throw error;
+// //   }
+// // }
 
 async function main() {
-  const client = await db.connect();
-  try {
-    // await seedUsers(client)
-    await seedPatients(client);
-    // await seedClinicalH(client);
-    // await seedOdontograms(client);
-    // await seedAppointments(client);
-  } catch (error) {
-    console.error(
-      "An error occurred while attempting to seed the database:",
-      error
-    );
-  } finally {
-    await client.end();
-  }
+  // const client = await db.connect();
+  const allPatients = await prisma.patient.findMany()
+  console.log(allPatients)
+  // try {
+  //   // await seedUsers(client)
+  //   await seedPatients(client);
+  //   // await seedClinicalH(client);
+  //   // await seedOdontograms(client);
+  //   // await seedAppointments(client);
+  // } catch (error) {
+  //   console.error(
+  //     "An error occurred while attempting to seed the database:",
+  //     error
+  //   );
+  // } finally {
+  //   await client.end();
+  // }
 }
 
-main().catch((err) => {
-  console.error("An error occurred in main:", err);
-});
+// main().catch((err) => {
+//   console.error("An error occurred in main:", err);
+// });
+main()
+  .then(async () => {
+    await prisma.$disconnect()
+  })
+  .catch(async (e) => {
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })
+
+
+  //ultima actualizacion

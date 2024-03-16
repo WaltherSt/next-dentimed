@@ -7,8 +7,10 @@ import { redirect } from "next/navigation";
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { Patients } from "./definitions";
 
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function authenticate(
   prevState: string | undefined,
@@ -31,7 +33,7 @@ export async function authenticate(
 
 export async function deletePatient(id: string) {
   try {
-    await sql`DELETE FROM patient WHERE id = ${id}`;
+    return await prisma.patient.delete({ where: { id: id } });
   } catch (error) {
     return { message: "Database Error: Fallo la eliminación del paciente" };
   } finally {
@@ -40,13 +42,8 @@ export async function deletePatient(id: string) {
 }
 
 export async function getPatient(id: string) {
-
-  
-
-
   try {
-    const result = await sql<Patients>`SELECT * FROM patient WHERE id = ${id}`;
-    return result.rows[0];
+    return await prisma.patient.findFirst({ where: { id: id } });
   } catch (error) {
     console.log(error);
   } finally {
@@ -68,18 +65,20 @@ const FormSchema = z.object({
 
 export async function getUser(email: string) {
   try {
-    return await sql`SELECT id FROM users WHERE email = ${email}`;
+    return await prisma.users.findFirst({ where: { email: email } });
   } catch (error) {
     return "Error: usuario no encontrado ";
   }
 }
 
 const CreatePatient = FormSchema.omit({ id: true });
+// implementar orm
+
 export async function createPatient(formData: FormData) {
   try {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
-    const userId = item.rows[0]?.id;
+    const userId = item.id;
 
     const {
       n_documento,
@@ -103,36 +102,28 @@ export async function createPatient(formData: FormData) {
 }
 
 const updatePatient = FormSchema.omit({});
+// implementar orm
 
 export async function updatePatientId(idPatient: string, formData: FormData) {
-  const {
-    n_documento,
-    tipo_documento,
-    nombres,
-    apellidos,
-    genero,
-    fecha_nacimiento,
-    telefono,
-    correo,
-  } = updatePatient.parse(Object.fromEntries(formData.entries()));
-
   try {
-    await sql`
-      UPDATE patient
-      SET N_documento =${n_documento}, 
-      Tipo_documento = ${tipo_documento},
-       Nombres = ${nombres},
-       Apellidos=${apellidos},
-       Genero=${genero},
-       Fecha_nacimiento=${fecha_nacimiento},
-       Telefono=${telefono},
-       Correo=${correo}
-      WHERE id = ${idPatient}
-    `;
-  } catch (error) {
-    return { message: "Database Error: Failed to Update Invoice." };
-  }
+    const fields = updatePatient.parse(Object.fromEntries(formData.entries()));
 
-  revalidatePath("/dashboard/patients");
-  redirect("/dashboard/patients");
+    const data = await prisma.patient.update({
+      where: { id: idPatient },
+      data: fields,
+    });
+    console.log(data);
+    revalidatePath("/dashboard/patients");
+    redirect("/dashboard/patients");
+  } catch (error) {
+    return { message: error };
+  }
+}
+
+export async function getCountPatientsByUser(userId: string) {
+  try {
+    return await prisma.patient.count({ where: { user_id: userId } });
+  } catch (error) {
+    console.log(error);
+  }
 }

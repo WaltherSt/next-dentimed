@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgres://default:FxlkYOCt05Ua@ep-falling-shape-a4ytoiuv-pooler.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require"
   extensions = [uuidOssp(map: "uuid-ossp", schema: "public")]
 }
 model users {

@@ -127,7 +127,7 @@ export async function updatePatientId(idPatient: string, formData: FormData) {
   try {
     const fields = updatePatient.parse(Object.fromEntries(formData.entries()));
 
-    const data = await prisma.patient.update({
+    const data = await PrismaSingleton.getInstance().patient.update({
       where: { id: idPatient },
       data: fields,
     });

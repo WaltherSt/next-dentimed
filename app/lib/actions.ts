@@ -7,10 +7,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { PrismaClient } from "@prisma/client";
 import { sql } from "@vercel/postgres";
+import { prisma } from "./prisma";
 
-const prisma = new PrismaClient();
+
 
 export async function authenticate(
   prevState: string | undefined,

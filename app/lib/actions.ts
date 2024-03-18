@@ -1,7 +1,6 @@
 "use server";
 
 import { auth, signIn } from "@/auth";
-import { sql } from "@vercel/postgres";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 
@@ -9,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { PrismaClient } from "@prisma/client";
+import { sql } from "@vercel/postgres";
 
 const prisma = new PrismaClient();
 
@@ -78,7 +78,7 @@ export async function createPatient(formData: FormData) {
   try {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
-    const userId = item.id;
+    const user_id = item.id;
 
     const {
       n_documento,
@@ -91,9 +91,25 @@ export async function createPatient(formData: FormData) {
       correo,
     } = CreatePatient.parse(Object.fromEntries(formData.entries()));
 
+    // const resultado = await prisma.patient.create({
+    //   data: {
+    //     n_documento,
+    //     tipo_documento,
+    //     nombres,
+    //     apellidos,
+    //     genero,
+    //     fecha_nacimiento,
+    //     telefono,
+    //     correo,
+    //     user_id,
+    //   },
+    // });
+
+    // console.log(resultado);
+
     await sql`
-    INSERT INTO patient (N_documento, Tipo_documento, Nombres, Apellidos, Genero, Fecha_nacimiento, Telefono, Correo, User_id)
-  VALUES (${n_documento}, ${tipo_documento}, ${nombres}, ${apellidos}, ${genero}, ${fecha_nacimiento}, ${telefono}, ${correo}, ${userId})`;
+      INSERT INTO patient (N_documento, Tipo_documento, Nombres, Apellidos, Genero, Fecha_nacimiento, Telefono, Correo, User_id)
+    VALUES (${n_documento}, ${tipo_documento}, ${nombres}, ${apellidos}, ${genero}, ${fecha_nacimiento}, ${telefono}, ${correo}, ${user_id})`;
   } catch (error) {
     return { message: "Database error: No se pudo crear el paciente ", error };
   } finally {

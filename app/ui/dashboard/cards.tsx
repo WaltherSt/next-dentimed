@@ -25,7 +25,7 @@ export function Card({
   type,
 }: {
   title: string;
-  value: number | string;
+  value: number | string | undefined;
   type: "pacientes" | "citas";
 }) {
   const Icon = iconMap[type];

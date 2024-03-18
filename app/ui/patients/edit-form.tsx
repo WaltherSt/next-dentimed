@@ -1,12 +1,11 @@
 "use client";
 
 import { updatePatientId } from "@/app/lib/actions";
-import { Patients } from "@/app/lib/definitions";
 import Link from "next/link";
 import { Button } from "../buttons/button";
 
 
-export default function Form({ patient }: { patient: Patients}) {
+export default function Form({ patient }: { patient: any}) {
   const fechaNacimiento = new Date(patient.fecha_nacimiento)
     .toISOString()
     .split("T")
@@ -31,6 +30,7 @@ export default function Form({ patient }: { patient: Patients}) {
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="customer-error"
               defaultValue={patient.tipo_documento}
+              required
             >
               <option value="" disabled>
                 Select a type of document

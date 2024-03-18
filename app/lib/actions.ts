@@ -2,15 +2,12 @@
 
 import { auth, signIn } from "@/auth";
 import { AuthError } from "next-auth";
-import { redirect } from "next/navigation";
-
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { sql } from "@vercel/postgres";
-import { prisma } from "./prisma";
-
-
+import { PrismaSingleton } from "./prisma";
 
 export async function authenticate(
   prevState: string | undefined,
@@ -33,7 +30,9 @@ export async function authenticate(
 
 export async function deletePatient(id: string) {
   try {
-    return await prisma.patient.delete({ where: { id: id } });
+    return await PrismaSingleton.getInstance().patient.delete({
+      where: { id: id },
+    });
   } catch (error) {
     return { message: "Database Error: Fallo la eliminación del paciente" };
   } finally {
@@ -43,7 +42,9 @@ export async function deletePatient(id: string) {
 
 export async function getPatient(id: string) {
   try {
-    return await prisma.patient.findFirst({ where: { id: id } });
+    return await PrismaSingleton.getInstance().patient.findFirst({
+      where: { id: id },
+    });
   } catch (error) {
     console.log(error);
   } finally {
@@ -65,7 +66,9 @@ const FormSchema = z.object({
 
 export async function getUser(email: string) {
   try {
-    return await prisma.users.findFirst({ where: { email: email } });
+    return await PrismaSingleton.getInstance().users.findFirst({
+      where: { email: email },
+    });
   } catch (error) {
     return "Error: usuario no encontrado ";
   }
@@ -138,7 +141,7 @@ export async function updatePatientId(idPatient: string, formData: FormData) {
 
 export async function getCountPatientsByUser(userId: string) {
   try {
-    return await prisma.patient.count({ where: { user_id: userId } });
+    return await PrismaSingleton.getInstance().patient.count({ where: { user_id: userId } });
   } catch (error) {
     console.log(error);
   }

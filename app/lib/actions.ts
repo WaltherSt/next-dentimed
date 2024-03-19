@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { sql } from "@vercel/postgres";
 import { PrismaSingleton } from "./prisma";
 
 export async function authenticate(
@@ -73,46 +72,22 @@ export async function getUser(email: string) {
     return "Error: usuario no encontrado ";
   }
 }
-
-const CreatePatient = FormSchema.omit({ id: true });
-// implementar orm
-
 export async function createPatient(formData: FormData) {
   try {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
     const user_id = item.id;
+    const { fecha_nacimiento } = Object.fromEntries(formData.entries());
 
-    const {
-      n_documento,
-      tipo_documento,
-      nombres,
-      apellidos,
-      genero,
-      fecha_nacimiento,
-      telefono,
-      correo,
-    } = CreatePatient.parse(Object.fromEntries(formData.entries()));
-
-    // const resultado = await prisma.patient.create({
-    //   data: {
-    //     n_documento,
-    //     tipo_documento,
-    //     nombres,
-    //     apellidos,
-    //     genero,
-    //     fecha_nacimiento,
-    //     telefono,
-    //     correo,
-    //     user_id,
-    //   },
-    // });
-
-    // console.log(resultado);
-
-    await sql`
-      INSERT INTO patient (N_documento, Tipo_documento, Nombres, Apellidos, Genero, Fecha_nacimiento, Telefono, Correo, User_id)
-    VALUES (${n_documento}, ${tipo_documento}, ${nombres}, ${apellidos}, ${genero}, ${fecha_nacimiento}, ${telefono}, ${correo}, ${user_id})`;
+    await PrismaSingleton.getInstance()
+      .patient.create({
+        data: {
+          ...Object.fromEntries(formData.entries()),
+          fecha_nacimiento: new Date(fecha_nacimiento.toString()),
+          user_id,
+        },
+      })
+      .catch((e) => console.log(e));
   } catch (error) {
     return { message: "Database error: No se pudo crear el paciente ", error };
   } finally {
@@ -120,28 +95,33 @@ export async function createPatient(formData: FormData) {
   }
 }
 
-const updatePatient = FormSchema.omit({});
-// implementar orm
-
+const updatePatient = FormSchema.omit({ id: true });
 export async function updatePatientId(idPatient: string, formData: FormData) {
   try {
+    const { fecha_nacimiento } = Object.fromEntries(formData.entries());
     const fields = updatePatient.parse(Object.fromEntries(formData.entries()));
 
-    const data = await PrismaSingleton.getInstance().patient.update({
-      where: { id: idPatient },
-      data: fields,
-    });
-    console.log(data);
-    revalidatePath("/dashboard/patients");
-    redirect("/dashboard/patients");
+    await PrismaSingleton.getInstance()
+      .patient.update({
+        where: { id: idPatient },
+        data: {
+          ...fields,
+          fecha_nacimiento: new Date(fecha_nacimiento.toString()),
+        },
+      })
+      .catch((e) => console.log(e));
   } catch (error) {
-    return { message: error };
+    return { message: `DataBase Error: ${error}` };
   }
+  revalidatePath("/dashboard/patients");
+  redirect("/dashboard/patients");
 }
 
 export async function getCountPatientsByUser(userId: string) {
   try {
-    return await PrismaSingleton.getInstance().patient.count({ where: { user_id: userId } });
+    return await PrismaSingleton.getInstance().patient.count({
+      where: { user_id: userId },
+    });
   } catch (error) {
     console.log(error);
   }

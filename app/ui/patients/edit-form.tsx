@@ -2,19 +2,19 @@
 
 import { updatePatientId } from "@/app/lib/actions";
 import Link from "next/link";
+
 import { Button } from "../buttons/button";
 
+export default function Form({ patient }: { patient: any }) {
+  const updatePatientWithId = updatePatientId.bind(null, patient.id);
 
-export default function Form({ patient }: { patient: any}) {
   const fechaNacimiento = new Date(patient.fecha_nacimiento)
     .toISOString()
     .split("T")
     .shift();
 
-    const updatePatient= updatePatientId.bind(null,patient.id)
-
   return (
-    <form action={updatePatient}>
+    <form action={updatePatientWithId}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         <div className="mb-4">
           <label

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { PrismaSingleton } from "./prisma";
+import prisma from "./db";
 
 export async function authenticate(
   prevState: string | undefined,
@@ -29,7 +29,7 @@ export async function authenticate(
 
 export async function deletePatient(id: string) {
   try {
-    return await PrismaSingleton.getInstance().patient.delete({
+    return await prisma.patient.delete({
       where: { id: id },
     });
   } catch (error) {
@@ -41,7 +41,7 @@ export async function deletePatient(id: string) {
 
 export async function getPatient(id: string) {
   try {
-    return await PrismaSingleton.getInstance().patient.findFirst({
+    return await prisma.patient.findFirst({
       where: { id: id },
     });
   } catch (error) {
@@ -65,7 +65,7 @@ const FormSchema = z.object({
 
 export async function getUser(email: string) {
   try {
-    return await PrismaSingleton.getInstance().users.findFirst({
+    return await prisma.users.findFirst({
       where: { email: email },
     });
   } catch (error) {
@@ -79,8 +79,8 @@ export async function createPatient(formData: FormData) {
     const user_id = item.id;
     const { fecha_nacimiento } = Object.fromEntries(formData.entries());
 
-    await PrismaSingleton.getInstance()
-      .patient.create({
+    await prisma.patient
+      .create({
         data: {
           ...Object.fromEntries(formData.entries()),
           fecha_nacimiento: new Date(fecha_nacimiento.toString()),
@@ -101,8 +101,8 @@ export async function updatePatientId(idPatient: string, formData: FormData) {
     const { fecha_nacimiento } = Object.fromEntries(formData.entries());
     const fields = updatePatient.parse(Object.fromEntries(formData.entries()));
 
-    await PrismaSingleton.getInstance()
-      .patient.update({
+    await prisma.patient
+      .update({
         where: { id: idPatient },
         data: {
           ...fields,
@@ -119,7 +119,7 @@ export async function updatePatientId(idPatient: string, formData: FormData) {
 
 export async function getCountPatientsByUser(userId: string) {
   try {
-    return await PrismaSingleton.getInstance().patient.count({
+    return await prisma.patient.count({
       where: { user_id: userId },
     });
   } catch (error) {

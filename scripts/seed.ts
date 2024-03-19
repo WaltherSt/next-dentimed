@@ -1,4 +1,4 @@
-import { PrismaSingleton } from "@/app/lib/prisma";
+import prisma from "@/app/lib/db";
 
 const { PrismaClient } = require("@prisma/client");
 const { db } = require("@vercel/postgres");
@@ -7,8 +7,6 @@ const { hash } = require("bcrypt");
 // const { db } = require("@vercel/postgres");
 
 //const {patients } = require("../app/lib/placeholder-data");
-
-const prisma = PrismaSingleton.getInstance();
 
 // async function seedUsers(client) {
 //   try {

@@ -1,9 +1,8 @@
 "use server";
 import { auth } from "@/auth";
-import { sql } from "@vercel/postgres";
 import { unstable_noStore as noStore } from "next/cache";
 import { getCountPatientsByUser, getUser } from "./actions";
-import { Patients } from "./definitions";
+import prisma from "./db";
 
 export async function fetchPatients() {
   noStore();
@@ -13,9 +12,11 @@ export async function fetchPatients() {
     const item: any = await getUser(user?.user?.email);
 
     const userId = item.id;
-    const data =
-      await sql<Patients>`SELECT * FROM patient WHERE patient.User_id=${userId}`;
-    return data.rows;
+    const data = await prisma.patient.findMany({
+      where: { user_id: userId },
+    });
+
+    return data;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch revenue data.");
@@ -27,9 +28,7 @@ export async function fetchCardData() {
   try {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
-
     const userId = item.id;
-    // const patientsCountPromise = sql`SELECT COUNT(*) FROM patient WHERE patient.User_id=${userId}`;
     const numberOfpatients = await getCountPatientsByUser(userId);
 
     return {
@@ -53,16 +52,18 @@ export async function fetchFilteredPatients(
   const userId = item.id;
 
   try {
-    const patients = await sql<Patients>`
-    SELECT *
-    FROM patient p
-    WHERE
-      p.nombres ILIKE ${`%${query}%`}
-      AND p.user_id=${userId}
-    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-  `;
+    const patients = await prisma.patient.findMany({
+      where: {
+        AND: [
+          { nombres: { contains: query, mode: "insensitive" } },
+          { user_id: userId },
+        ],
+      },
+      skip: offset,
+      take: ITEMS_PER_PAGE,
+    });
 
-    return patients.rows;
+    return patients;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch patient.");
@@ -76,13 +77,12 @@ export async function fetchPatientsPages(query: string) {
     const user: any = await auth();
     const item: any = await getUser(user?.user?.email);
     const userId = item.id;
-    const count = await sql`SELECT COUNT(*)
-    FROM patient
-    WHERE
-      patient.nombres ILIKE ${`%${query}%`}
-      AND patient.User_id=${userId}
-  `;
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+
+    const count = await prisma.patient.count({
+      where: { AND: [{ nombres: { contains: query } }, { user_id: userId }] },
+    });
+
+    const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error("Database Error:", error);
